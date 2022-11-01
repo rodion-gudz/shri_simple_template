@@ -1,0 +1,38 @@
+name: Deploy
+
+on:
+  pull_request:
+    branches:
+      - '*'
+  push:
+    branches:
+      - 'master'
+
+permissions:
+  contents: write
+
+jobs:
+  build_deploy:
+    concurrency: ci-${{ github.ref }}
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup NodeJS
+        uses: actions/setup-node@v3
+        with:
+          node-version: "16.x"
+
+      - name: Install
+        run: npm install --force
+
+      - name: Build
+        run: npm run build --if-present
+
+      - name: Deploy
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: dist
